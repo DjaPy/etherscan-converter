@@ -9,13 +9,15 @@ class HttpClientConfig(ConfigClient):
 
     retry_count: int = 5
     retry_timeout: float = 10
+    api_token: str
 
     class Config:
+        env_prefix = 'ETH_'
         env_file = '.env'
 
 
 class Config(BaseSettings):
-    http_client = HttpClientConfig()
+    eth_client = HttpClientConfig()
     host: str = '127.0.0.1'
     port: int = 8000
     service_name: str = "etherscan_converter"

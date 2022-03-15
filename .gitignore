@@ -612,3 +612,5 @@ fabric.properties
 graph_of_reading_of_the_psalter.xlsx
 
 poetry.lock
+
+.env

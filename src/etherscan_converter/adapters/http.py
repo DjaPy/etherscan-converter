@@ -10,4 +10,7 @@ class HttpClient(Client[HttpClientConfig, Exception]):
     _exception = HttpClientException
 
 
+
+
+
 http_client = HttpClient(config.http_client)
