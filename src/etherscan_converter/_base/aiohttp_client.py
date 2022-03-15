@@ -69,14 +69,14 @@ class Client(Generic[ConfigClass, ErrorException]):
 
     async def _send_request(
         self,
-        path: str,
-        response_schema: Type[ResponseModel],
-        error_schema: Type[ErrorSchema],
-        method: str = 'GET',
-        ssl: Optional[Union[SSLContext, bool, Fingerprint]] = False,
-        headers: Optional[Dict[str, str]] = None,
-        body: Optional[Union[Dict[str, Any], MultipartWriter, str, bytes]] = None,
-        **kwargs: Optional[Any]
+            path: str,
+            response_schema: Type[ResponseModel],
+            error_schema: Type[ErrorSchema],
+            method: str = 'GET',
+            ssl: Optional[Union[SSLContext, bool, Fingerprint]] = False,
+            headers: Optional[Dict[str, str]] = None,
+            body: Optional[Union[Dict[str, Any], MultipartWriter, str, bytes]] = None,
+            **kwargs: Optional[Any]
     ) -> Union[Optional[ResponseModel], Optional[ErrorSchema]]:
 
         url = str(self.url.with_path(join(self.url.path, path)))
