@@ -11,8 +11,8 @@ from yarl import URL
 
 
 class ConfigClient(BaseSettings):
-    url: Optional[AnyHttpUrl] = Field(description='Хост сервиса для клиента')
-    timeout: int = Field(10, description='Время ожидания ответа от сервера')
+    url: Optional[AnyHttpUrl] = Field(description='Host client')
+    timeout: int = Field(10, description='waiting time from the server')
 
 
 ConfigClass = TypeVar('ConfigClass', bound=ConfigClient)
@@ -39,18 +39,6 @@ class Client(Generic[ConfigClass, ErrorException]):
         if self.session:
             await self.session.close()
 
-    async def _error_handler(self, error_schema: Type[ErrorSchema], response: ClientResponse) -> Optional[ErrorSchema]:
-        response_r = await response.read()
-        error = error_schema.parse_raw(response_r)  # type: ignore
-        error.status_code = response.status
-        return error
-
-    async def _success_handler(self, response_schema: Type[ResponseModel], response: ClientResponse) -> ResponseModel:
-        return response_schema.parse_raw(await response.read())
-
-    async def _empty_handler(self, error_schema: Type[ErrorSchema], response: ClientResponse) -> Optional[ErrorSchema]:
-        return None
-
     async def get_raw_response(self, url: URL, method: str = 'GET', **kwargs: Any) -> ClientResponse:
         if not self.session:
             raise RuntimeError('Session is not initialize. Call .start()')
@@ -69,14 +57,14 @@ class Client(Generic[ConfigClass, ErrorException]):
 
     async def _send_request(
         self,
-            path: str,
-            response_schema: Type[ResponseModel],
-            error_schema: Type[ErrorSchema],
-            method: str = 'GET',
-            ssl: Optional[Union[SSLContext, bool, Fingerprint]] = False,
-            headers: Optional[Dict[str, str]] = None,
-            body: Optional[Union[Dict[str, Any], MultipartWriter, str, bytes]] = None,
-            **kwargs: Optional[Any]
+        path: str,
+        response_schema: Type[ResponseModel],
+        error_schema: Type[ErrorSchema],
+        method: str = 'GET',
+        ssl: Optional[Union[SSLContext, bool, Fingerprint]] = False,
+        headers: Optional[Dict[str, str]] = None,
+        body: Optional[Union[Dict[str, Any], MultipartWriter, str, bytes]] = None,
+        **kwargs: Optional[Any]
     ) -> Union[Optional[ResponseModel], Optional[ErrorSchema]]:
 
         url = str(self.url.with_path(join(self.url.path, path)))
@@ -95,13 +83,13 @@ class Client(Generic[ConfigClass, ErrorException]):
         except asyncio.TimeoutError:
             raise self._exception({'errors': 'Service unavailable'})
         if response.status in (status.HTTP_200_OK, status.HTTP_201_CREATED):
-            return await self._success_handler(response_schema, response)
-
-        if response.status in (status.HTTP_404_NOT_FOUND, status.HTTP_204_NO_CONTENT):
-            return await self._empty_handler(error_schema, response)
+            return response_schema.parse_raw(await response.read())
 
         if response.status in (status.HTTP_400_BAD_REQUEST, status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN):
-            return await self._error_handler(error_schema, response)
+            response_r = await response.read()
+            error = error_schema.parse_raw(response_r)  # type: ignore
+            error.status_code = response.status
+            return error
 
         raise self._exception(f'Error in request "{response.status}" method="{method}", url="{url}"')
 
