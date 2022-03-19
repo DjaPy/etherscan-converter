@@ -13,7 +13,7 @@ class EtherscanConfig(ConfigClient):
 
     class Config:
         env_prefix = 'ETH_'
-        env_file = '../../.env'
+        env_file = '.env'
 
 
 class Config(BaseSettings):
@@ -24,13 +24,8 @@ class Config(BaseSettings):
 
     origins: List[Optional[AnyHttpUrl]] = []  # CORS
 
-    jaeger_enable: bool = False
-    jaeger_name: str = service_name
-    jaeger_host: str = 'localhost'
-    jaeger_port: int = 6831
-
     class Config:
-        env_file = '../../.env'
+        env_file = '.env'
 
 
 config = Config()

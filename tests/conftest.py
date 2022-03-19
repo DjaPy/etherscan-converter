@@ -1,6 +1,5 @@
 """Конфигурация для тестирования."""
 import asyncio
-import uuid
 from functools import partial
 from typing import List, Optional
 
@@ -11,12 +10,6 @@ from aioresponses import aioresponses
 from entrypoints.fastapi_app import get_application
 from faker import Faker
 from fastapi import FastAPI
-from sqlalchemy import create_engine
-from sqlalchemy.engine import URL
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import NullPool
-from sqlalchemy_utils import create_database, drop_database
 
 from etherscan_converter.config import Config
 

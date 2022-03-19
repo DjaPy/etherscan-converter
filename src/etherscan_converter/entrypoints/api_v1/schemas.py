@@ -24,7 +24,6 @@ class TrxDetail(BaseModel):
     status: StatusTrXEnum
     date: datetime
     block_id: int
-    date: datetime
     from_trx: bytes
     to: bytes
     partner: Optional[str]

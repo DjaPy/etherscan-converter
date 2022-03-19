@@ -1,6 +1,5 @@
 import asyncio
 from functools import wraps
-from os.path import join
 from typing import Any, Callable, Dict, Generic, Optional, Sequence, Type, TypeVar, Union
 
 from aiohttp import ClientError, ClientResponse, ClientSession, ClientTimeout, Fingerprint, MultipartWriter
@@ -17,13 +16,14 @@ class ConfigClient(BaseSettings):
 
 ConfigClass = TypeVar('ConfigClass', bound=ConfigClient)
 ResponseModel = TypeVar('ResponseModel', bound=BaseModel)
-ErrorSchema = TypeVar('ErrorSchema')
+ErrorSchema = TypeVar('ErrorSchema', bound=BaseModel)
 ErrorException = TypeVar('ErrorException', bound=Exception)
 
 
 class Client(Generic[ConfigClass, ErrorException]):
     cfg: ConfigClient
     session: Optional[ClientSession]
+    url: URL
     _exception: Type[ErrorException]
 
     def __init__(self, config: ConfigClient) -> None:
@@ -57,7 +57,7 @@ class Client(Generic[ConfigClass, ErrorException]):
 
     async def _send_request(
         self,
-        path: str,
+        path: URL,
         response_schema: Type[ResponseModel],
         error_schema: Type[ErrorSchema],
         method: str = 'GET',
@@ -67,13 +67,12 @@ class Client(Generic[ConfigClass, ErrorException]):
         **kwargs: Optional[Any]
     ) -> Union[Optional[ResponseModel], Optional[ErrorSchema]]:
 
-        url = str(self.url.with_path(join(self.url.path, path)))
         if not self.session:
             raise RuntimeError('Session is not initialize. Call .start()')
         try:
             response: ClientResponse = await self.session.request(
                 method=method,
-                url=url,
+                url=path,
                 headers=headers,
                 data=body,
                 timeout=ClientTimeout(total=(self.cfg.timeout or 10.0)),
@@ -87,11 +86,10 @@ class Client(Generic[ConfigClass, ErrorException]):
 
         if response.status in (status.HTTP_400_BAD_REQUEST, status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN):
             response_r = await response.read()
-            error = error_schema.parse_raw(response_r)  # type: ignore
-            error.status_code = response.status
+            error = error_schema.parse_raw(response_r)
             return error
 
-        raise self._exception(f'Error in request "{response.status}" method="{method}", url="{url}"')
+        raise self._exception(f'Error in request "{response.status}" method="{method}", url="{self.url}"')
 
 
 def repeat_call_on_exception(
