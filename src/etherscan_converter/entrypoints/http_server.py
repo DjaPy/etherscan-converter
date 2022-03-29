@@ -3,7 +3,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from etherscan_converter.adapters.etherscan_client import etherscan_client
 from etherscan_converter.config import Config, config
-from etherscan_converter.entrypoints.api_v1.api import api_router
+from etherscan_converter.entrypoints.api_v1.api import api_router_v1
 
 
 async def startup_client() -> None:
@@ -36,7 +36,7 @@ def get_application(app_config: Config) -> FastAPI:
         allow_headers=['*'],
     )
 
-    app.include_router(api_router)
+    app.include_router(api_router_v1)
 
     return app
 

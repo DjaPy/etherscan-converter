@@ -7,7 +7,7 @@ import pytest
 import uvicorn
 from aiohttp import request
 from aioresponses import aioresponses
-from entrypoints.fastapi_app import get_application
+from entrypoints.http_server import get_application
 from faker import Faker
 from fastapi import FastAPI
 

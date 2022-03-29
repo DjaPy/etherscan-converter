@@ -9,9 +9,9 @@ router = APIRouter()
 
 @router.get(
     '/',
-    summary='Проверка работы сервиса',
+    summary='Health check',
     responses={
-        status.HTTP_200_OK: {'model': HealthResponseSchema, 'description': 'Сервис работает'},
+        status.HTTP_200_OK: {'model': HealthResponseSchema, 'description': 'Service online'},
     },
 )
 async def health_check() -> HealthResponseSchema:

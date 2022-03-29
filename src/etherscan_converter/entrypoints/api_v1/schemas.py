@@ -20,11 +20,20 @@ class StatusTrXEnum(Enum):
 
 
 class TrxDetail(BaseModel):
-    trx_hash: bytes
-    status: StatusTrXEnum
     date: datetime
-    block_id: int
-    from_trx: bytes
-    to: bytes
+    income_type: str
+    bond_name: str
+    income_amount: Decimal
+    income_day_usd: Decimal
+    income_day_eth: bytes
     partner: Optional[str]
     trx_fee: Decimal
+
+
+class TrxDataResponse(BaseModel):
+    date: datetime
+    income_type: str
+    bond_name: str
+    income_amount: Decimal
+    income_day_usd: Decimal
+    income_day_eth: bytes

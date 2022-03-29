@@ -2,7 +2,7 @@ import pytest
 from starlette import status
 from yarl import URL
 
-from etherscan_converter.adapters.etherscan_client import TrxByHashResponse, etherscan_client, ResultResponse
+from etherscan_converter.adapters.etherscan_client import TrxByHashResponse, etherscan_client, ResultResponseProxy
 
 
 @pytest.mark.asyncio
@@ -11,8 +11,8 @@ async def test_get_trx_by_hash(server, config, mock_responses, generator_data):
     trx_hash = 'trx_hash'
 
     body = generator_data(TrxByHashResponse)
-    data = ResultResponse(json_rpc='2.0', id=1, result=body)
-    url = URL(config.eth_client.url) / 'api' % {'module': 'proxy', 'action': 'eth_getTransactionByHash', 'txhash': trx_hash, 'apikey': config.eth_client.apikey}
+    data = ResultResponseProxy(json_rpc='2.0', id=1, result=body)
+    url = URL(config.eth.url) / 'api' % {'module': 'proxy', 'action': 'eth_getTransactionByHash', 'txhash': trx_hash, 'apikey': config.eth.apikey}
     mock_responses.get(
         url=url,
         body=data.json(),

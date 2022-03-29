@@ -1,6 +1,6 @@
-from typing import Any, Generic, List, TypeVar
+from typing import Generic, List, TypeVar, Optional, Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from pydantic.generics import GenericModel
 
 from etherscan_converter._base.aiohttp_client import Client
@@ -13,10 +13,37 @@ class HttpClientException(Exception):
     """Исключение для HTTP клиента."""
 
 
-class ResultResponse(GenericModel, Generic[ParamType]):
-    json_rpc: str
+class ResultResponseProxy(GenericModel, Generic[ParamType]):
+    jsonrpc: str
     id: int
     result: ParamType
+
+
+class ResultResponseContract(GenericModel, Generic[ParamType]):
+    status: str
+    message: str
+    result: ParamType
+
+
+ABI = str
+
+
+class SourceCodeContract(BaseModel):
+    ABI: str
+    ContractName: str
+    CompilerVersion: str
+    OptimizationUsed: str
+    Runs: str
+    ConstructorArguments: str
+    EVMVersion: str
+    Library: str
+    LicenseType: str
+    Proxy: str
+    Implementation: str
+    SwarmSource: str
+
+
+SourceCodeContracts = List[SourceCodeContract]
 
 
 class TrxByHashResponse(BaseModel):
@@ -34,25 +61,55 @@ class TrxByHashResponse(BaseModel):
     transactionIndex: str
     value: str
     type: str
-    accssList: List[str]
+    accssList: Optional[List[str]]
     chainId: str
     v: str
     r: str
     s: str
 
+    class Config:
+        by_alias = False
 
-class HttpClient(Client[EtherscanConfig, Exception]):
+
+class ResponseErrorSchema(BaseModel):
+    status: str
+    message: str
+    result: str
+
+
+class EthClient(Client[EtherscanConfig, Exception]):
     _exception = HttpClientException
     cfg: EtherscanConfig
 
-    async def get_trx_by_hash(self, trx_hash: str) -> TrxByHashResponse:
-        result = await self._send_request(
-            paht=f'/api?module=proxy&action=eth_getTransactionByHash&txhash={trx_hash}&apikey={self.cfg.apikey}',
-            response_schema=ResultResponse[TrxByHashResponse],
-            error_schema=None,
+    async def get_trx_by_hash(self, trx_hash: str) -> Optional[ResultResponseProxy]:
+        url = self.url / 'api' % {
+            'module': 'proxy', 'action': 'eth_getTransactionByHash', 'txhash': trx_hash, 'apikey': self.cfg.apikey
+        }
+        return await self._send_request(
+            path=url,
+            response_schema=ResultResponseProxy[TrxByHashResponse],
+            error_schema=ResponseErrorSchema,
         )
-        if result.result:
-            return result.result
+
+    async def get_abi(self, address: str) -> Optional[ResultResponseContract]:
+        url = self.url / 'api' % {
+            'module': 'contract', 'action': 'getabi', 'address': address, 'apikey': self.cfg.apikey
+        }
+        return await self._send_request(
+            path=url,
+            response_schema=ResultResponseContract[ABI],
+            error_schema=ResponseErrorSchema,
+        )
+
+    async def get_source_code_contract(self, address: str):
+        url = self.url / 'api' % {
+            'module': 'contract', 'action': 'getsourcecode', 'address': address, 'apikey': self.cfg.apikey
+        }
+        return await self._send_request(
+            path=url,
+            response_schema=ResultResponseContract[SourceCodeContracts],
+            error_schema=ResponseErrorSchema,
+        )
 
 
-etherscan_client = HttpClient(config.http_client)
+etherscan_client = EthClient(config.eth)

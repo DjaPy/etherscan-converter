@@ -82,7 +82,8 @@ class Client(Generic[ConfigClass, ErrorException]):
         except asyncio.TimeoutError:
             raise self._exception({'errors': 'Service unavailable'})
         if response.status in (status.HTTP_200_OK, status.HTTP_201_CREATED):
-            return response_schema.parse_raw(await response.read())
+            result = await response.read()
+            return response_schema.parse_raw(result)
 
         if response.status in (status.HTTP_400_BAD_REQUEST, status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN):
             response_r = await response.read()
