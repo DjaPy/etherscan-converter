@@ -1,6 +1,6 @@
+from entrypoints.api_v1.endpoints import transaction_data
 from fastapi import APIRouter
 
-from entrypoints.api_v1.endpoints import transaction_data
 from etherscan_converter.entrypoints.api_v1.endpoints import health_check
 
 api_router_v1 = APIRouter(prefix='/v1')

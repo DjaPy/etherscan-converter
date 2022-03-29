@@ -1,6 +1,6 @@
-from typing import Generic, List, TypeVar, Optional, Any
+from typing import Generic, List, Optional, TypeVar
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 from pydantic.generics import GenericModel
 
 from etherscan_converter._base.aiohttp_client import Client
@@ -81,7 +81,7 @@ class EthClient(Client[EtherscanConfig, Exception]):
     _exception = HttpClientException
     cfg: EtherscanConfig
 
-    async def get_trx_by_hash(self, trx_hash: str) -> Optional[ResultResponseProxy]:
+    async def get_trx_by_hash(self, trx_hash: str) -> ResultResponseProxy:
         url = self.url / 'api' % {
             'module': 'proxy', 'action': 'eth_getTransactionByHash', 'txhash': trx_hash, 'apikey': self.cfg.apikey
         }
@@ -91,7 +91,7 @@ class EthClient(Client[EtherscanConfig, Exception]):
             error_schema=ResponseErrorSchema,
         )
 
-    async def get_abi(self, address: str) -> Optional[ResultResponseContract]:
+    async def get_abi(self, address: str) -> ResultResponseContract:
         url = self.url / 'api' % {
             'module': 'contract', 'action': 'getabi', 'address': address, 'apikey': self.cfg.apikey
         }
@@ -101,7 +101,7 @@ class EthClient(Client[EtherscanConfig, Exception]):
             error_schema=ResponseErrorSchema,
         )
 
-    async def get_source_code_contract(self, address: str):
+    async def get_source_code_contract(self, address: str) -> ResultResponseContract:
         url = self.url / 'api' % {
             'module': 'contract', 'action': 'getsourcecode', 'address': address, 'apikey': self.cfg.apikey
         }

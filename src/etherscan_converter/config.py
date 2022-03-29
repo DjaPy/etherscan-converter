@@ -18,6 +18,7 @@ class EtherscanConfig(ConfigClient):
 
 class Config(BaseSettings):
     eth = EtherscanConfig()
+    infura_key: str
     host: str = '127.0.0.1'
     port: int = 8000
     service_name: str = "etherscan_converter"

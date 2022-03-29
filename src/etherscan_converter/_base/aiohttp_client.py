@@ -65,7 +65,7 @@ class Client(Generic[ConfigClass, ErrorException]):
         headers: Optional[Dict[str, str]] = None,
         body: Optional[Union[Dict[str, Any], MultipartWriter, str, bytes]] = None,
         **kwargs: Optional[Any]
-    ) -> Union[Optional[ResponseModel], Optional[ErrorSchema]]:
+    ) -> Union[ResponseModel, ErrorSchema]:
 
         if not self.session:
             raise RuntimeError('Session is not initialize. Call .start()')

@@ -1,6 +1,5 @@
-from adapters.etherscan_client import ResultResponseProxy, TrxByHashResponse
 import web3
-
+from adapters.etherscan_client import ResultResponseProxy, TrxByHashResponse
 from web3 import Web3
 
 provider = Web3.WebsocketProvider('wss://ropsten.infura.io/ws/v3/02a5d9b951bd47dfbe40edaecafb3189')

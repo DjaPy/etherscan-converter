@@ -1,17 +1,14 @@
-import json
-
-from web3 import Web3
+from config import config
 from fastapi import APIRouter
 from starlette import status
+from web3 import Web3
 
 from etherscan_converter.adapters.etherscan_client import etherscan_client
 from etherscan_converter.entrypoints.api_v1.schemas import TrxDataResponse
 
 router = APIRouter()
 
-TRXHASH = '0x14dc5b46f607e2f0594bc633a50c1218f38f65216aaf3e9296f14bfa38fc3bc1'
-
-provider = Web3.HTTPProvider('https://mainnet.infura.io/v3/02a5d9b951bd47dfbe40edaecafb3189')
+provider = Web3.HTTPProvider(config.infura_key)
 
 
 @router.get(

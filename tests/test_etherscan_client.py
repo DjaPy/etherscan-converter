@@ -2,7 +2,7 @@ import pytest
 from starlette import status
 from yarl import URL
 
-from etherscan_converter.adapters.etherscan_client import TrxByHashResponse, etherscan_client, ResultResponseProxy
+from etherscan_converter.adapters.etherscan_client import ResultResponseProxy, TrxByHashResponse, etherscan_client
 
 
 @pytest.mark.asyncio
